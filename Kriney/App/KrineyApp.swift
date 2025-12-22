@@ -11,10 +11,9 @@ import SwiftUI
 struct KrineyApp: App {
     var body: some Scene {
         WindowGroup {
-            NavigationView {
+            NavigationStack {
                 LoginView()
             }
-            
         }
     }
 }

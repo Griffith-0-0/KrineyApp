@@ -13,7 +13,6 @@ struct SignUpView: View {
     @State private var phone: String = ""
     @State private var password: String = ""
     @State private var confirmPassword: String = ""
-    @State private var country: String = ""
     @State private var showPassword: Bool = false
     @State private var showConfirmPassword: Bool = false
     @State private var isLoading: Bool = false
@@ -27,7 +26,7 @@ struct SignUpView: View {
     }
     
     enum Field {
-        case fullName, emailAddress, phone, password, confirmPassword, country
+        case fullName, emailAddress, phone, password, confirmPassword
     }
     
     private func signUpInputs() -> some View {
@@ -128,8 +127,7 @@ struct SignUpView: View {
 //                                    .foregroundColor(userType == type ? Color("primaryColor") : Color.gray)
                             }
                             .padding(.vertical, 5)
-//                            .padding(.horizontal, 12)
-                            .frame(maxWidth: .infinity, maxHeight: 200)
+                            .frame(maxWidth: .infinity, minHeight: 70)
                             .background(
                                 RoundedRectangle(cornerRadius: 10)
                                     .strokeBorder(userType == type ? Color("primaryColor") : Color.gray.opacity(0.3), lineWidth: userType == type ? 2 : 1)
@@ -166,7 +164,7 @@ struct SignUpView: View {
                                 ProgressView()
                                     .progressViewStyle(CircularProgressViewStyle(tint: .white))
                             } else {
-                                Text("Sing up")
+                                Text("Sign up")
                                     .fontWeight(.semibold)
                                     .foregroundColor(Color("white"))
                             }
@@ -178,7 +176,7 @@ struct SignUpView: View {
                     }
                     .disabled(isLoading)
                     
-                    Button(action: { dismiss() }) {
+                    NavigationLink(destination: LoginView()) {
                         HStack {
                             Spacer()
                             Text("Login")
@@ -246,15 +244,11 @@ struct SignUpView: View {
                     Text("Already have an account?")
                         .font(.footnote)
                         .foregroundColor(.gray)
-                    Button(action: { dismiss() }) {
-                            
-                            Text("Login.")
-                                .font(.footnote)
-                                .foregroundColor(Color("primaryColor"))
-                            
-                        
+                    NavigationLink(destination: LoginView()) {
+                        Text("Login.")
+                            .font(.footnote)
+                            .foregroundColor(Color("primaryColor"))
                     }
-                    .buttonStyle(PlainButtonStyle())
                     Spacer()
                 }
             }
