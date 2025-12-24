@@ -12,7 +12,7 @@ struct KrineyApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationStack {
-                LoginView()
+                ContentView()
             }
         }
     }

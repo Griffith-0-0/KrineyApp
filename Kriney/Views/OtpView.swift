@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct OtpView: View {
+    let contactInfo: String // Email or phone number to display
+    
     @Environment(\.dismiss) private var dismiss
     @State private var otpDigits: [String] = Array(repeating: "", count: 5)
     @State private var isLoading = false
-
-    private let phoneMask = "+100******00"
 
     private var codeString: String { otpDigits.joined() }
     private var isComplete: Bool { !otpDigits.contains("") }
@@ -21,7 +21,7 @@ struct OtpView: View {
         VStack(spacing: 24) {
             OtpHeader()
             
-            VerificationCodeHeader(phoneMask: phoneMask)
+            VerificationCodeHeader(contactInfo: contactInfo)
             
             OtpCodeInputs(otpDigits: otpDigits)
             
@@ -104,7 +104,7 @@ private struct OtpHeader: View {
 }
 
 private struct VerificationCodeHeader: View {
-    let phoneMask: String
+    let contactInfo: String
     
     var body: some View {
         VStack(spacing: 8) {
@@ -113,7 +113,7 @@ private struct VerificationCodeHeader: View {
                 .foregroundColor(Color("textPrimary"))
                 .multilineTextAlignment(.center)
 
-            Text("We have send a Code to : \(phoneMask)")
+            Text("We have send a Code to : \(contactInfo)")
                 .font(.subheadline)
                 .foregroundColor(Color("textSecondary"))
                 .multilineTextAlignment(.center)
@@ -289,6 +289,6 @@ private struct KeypadButton: View {
 
 #Preview {
     NavigationView {
-        OtpView()
+        OtpView(contactInfo: "+212******89")
     }
 }

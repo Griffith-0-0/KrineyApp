@@ -1,21 +1,26 @@
-//
-//  ContentView.swift
-//  Kriney
-//
-//  Created by user on 19/12/2025.
-//
-
+// ContentView.swift
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var authViewModel = AuthViewModel()
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        Group {
+            if authViewModel.isAuthenticated {
+                // Show appropriate interface based on role
+                if authViewModel.isClient {
+                    ClientTabView()
+                } else if authViewModel.isAgency {
+                    AgencyTabView()
+                }
+            } else {
+                // Show login/signup flow
+                NavigationStack {
+                    LoginView()
+                        .environmentObject(authViewModel)
+                }
+            }
         }
-        .padding()
     }
 }
 

@@ -11,6 +11,8 @@ struct RestWithPhoneView: View {
     @State private var phoneNumber: String = ""
     @State private var isLoading: Bool = false
     @State private var showOtpView = false
+    @State private var navigateToLogin = false
+    @FocusState private var isPhoneFocused: Bool
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
@@ -19,21 +21,19 @@ struct RestWithPhoneView: View {
                 // App Logo and Name
                 AppLogoName()
                 
-                Spacer().frame(height: 40)
-                
                 // Title
-                Text("Reset your password")
-                    .font(.system(size: 32, weight: .bold))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                
-                // Description
-                Text("Enter the phone number associated with your account and we'll send you a code to reset your password.")
-                    .font(.system(size: 16))
-                    .foregroundColor(.gray)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .lineSpacing(4)
-                
-                Spacer().frame(height: 20)
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Reset your password")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(Color("textPrimary"))
+                    
+                    Text("Enter the phone number associated with your account and we'll send you a code to reset your password.")
+                        .font(.body)
+                        .foregroundColor(.gray)
+                        .lineSpacing(4)
+                }
+                .padding(.top, 8)
                 
                 // Phone Input
                 VStack(alignment: .leading, spacing: 8) {
@@ -48,14 +48,16 @@ struct RestWithPhoneView: View {
                             .padding(.leading, 8)
                             .padding(.vertical, 16)
                             .padding(.trailing, 16)
+                            .focused($isPhoneFocused)
                     }
                     .background(
                         RoundedRectangle(cornerRadius: 10)
-                            .strokeBorder(Color.gray.opacity(0.3), lineWidth: 1)
+                            .strokeBorder(
+                                isPhoneFocused ? Color("primaryColor") : Color.gray.opacity(0.3),
+                                lineWidth: isPhoneFocused ? 2 : 1
+                            )
                     )
                 }
-                
-                Spacer()
                 
                 // Continue Button
                 Button(action: { handleContinue() }) {
@@ -76,6 +78,7 @@ struct RestWithPhoneView: View {
                     .cornerRadius(30)
                 }
                 .disabled(isLoading)
+                
                 // Switch to email reset Button
                 Button(action: { dismiss() }) {
                     HStack {
@@ -92,28 +95,21 @@ struct RestWithPhoneView: View {
                     )
                 }
                 
-                // Return to login in
-                
-                    HStack{
-                        Spacer()
-                        Text("Return to")
+                // Return to login
+                HStack{
+                    Spacer()
+                    Text("Return to")
+                        .font(.system(size: 16))
+                        .foregroundColor(.gray)
+                    Button(action: {
+                        navigateToLogin = true
+                    }) {
+                        Text("Login in")
                             .font(.system(size: 16))
-                            .foregroundColor(.gray)
-                        Button(action: {
-                            dismiss()
-                        }) {
-                            Text("Login in")
-                                .font(.system(size: 16))
-                                .foregroundColor(Color("primaryColor"))
-                        }
-                        Spacer()
-                        
+                            .foregroundColor(Color("primaryColor"))
+                    }
+                    Spacer()
                     }.padding(.top, 8)
-                
-            
-                
-                
-                Spacer()
                 
                 // Create a New account
                 HStack {
@@ -121,20 +117,15 @@ struct RestWithPhoneView: View {
                     Text("Create a")
                         .font(.system(size: 16))
                         .foregroundColor(.gray)
-                    Button(action: {
-                        dismiss()
-                    }) {
+                    NavigationLink(destination: SignUpView()) {
                         Text("New account")
                             .font(.system(size: 16))
                             .foregroundColor(Color("primaryColor"))
                     }
-                    .buttonStyle(.plain)
                     Spacer()
                 }
-                .padding(.bottom, 32)
             }
-            .padding(.horizontal, 24)
-            .padding(.top, 20)
+            .padding(24)
         }
         .navigationBarBackButtonHidden(true)
         .toolbar {
@@ -151,8 +142,20 @@ struct RestWithPhoneView: View {
             }
         }
         .navigationDestination(isPresented: $showOtpView) {
-            OtpView()
+            OtpView(contactInfo: maskPhone(phoneNumber))
         }
+        .navigationDestination(isPresented: $navigateToLogin) {
+            LoginView()
+        }
+    }
+    
+    private func maskPhone(_ phone: String) -> String {
+        guard phone.count >= 4 else { return "+212\(phone)" }
+        
+        let lastTwo = phone.suffix(2)
+        let masked = String(repeating: "*", count: max(0, phone.count - 2))
+        
+        return "+212\(masked)\(lastTwo)"
     }
     
     private func handleContinue() {
@@ -165,27 +168,10 @@ struct RestWithPhoneView: View {
             showOtpView = true
         }
     }
-    
-    struct AppLogoName: View {
-        var body: some View {
-            HStack(alignment: .center, spacing: 12) {
-                ZStack {
-                    Circle()
-                        .fill(Color.black)
-                        .frame(width: 44, height: 44)
-                    Image(systemName: "car.fill")
-                        .foregroundColor(.white)
-                        .font(.system(size: 18, weight: .semibold))
-                }
-                
-                Text("Kriney")
-                    .font(.title2).bold()
-            }
-            .padding(.top, 8)
-        }
-    }
 }
 
 #Preview {
-    RestWithPhoneView()
+    NavigationStack {
+        RestWithPhoneView()
+    }
 }

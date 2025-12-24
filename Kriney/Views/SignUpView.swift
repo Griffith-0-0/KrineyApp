@@ -19,6 +19,7 @@ struct SignUpView: View {
     @State private var userType: UserType = .driver
     @FocusState private var focusedField: Field?
     @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var authViewModel: AuthViewModel
     
     enum UserType: String, CaseIterable {
         case driver = "Driver (Client)"
