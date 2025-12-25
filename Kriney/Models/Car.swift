@@ -21,6 +21,7 @@ struct Car: Identifiable, Codable {
     var imageURL: String?
     var features: [String]
     var isAvailable: Bool
+    var isFavorite: Bool = false
     let createdAt: Date
     var updatedAt: Date
 

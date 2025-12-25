@@ -44,6 +44,7 @@ struct LoginView: View {
             }
             .padding(24)
         }
+        .background(Color("background"))
         .navigationBarHidden(true)
         .alert("Login Failed", isPresented: $showErrorAlert) {
             Button("OK", role: .cancel) {
@@ -123,7 +124,7 @@ private struct LoginInputFields: View {
                 .background(
                     RoundedRectangle(cornerRadius: 10)
                         .strokeBorder(
-                            focusedField.wrappedValue == .emailOrPhone ? Color("primaryColor") : Color.gray.opacity(0.3),
+                            focusedField.wrappedValue == .emailOrPhone ? Color("primaryColor") : Color("Stoke"),
                             lineWidth: focusedField.wrappedValue == .emailOrPhone ? 2 : 1
                         )
                 )
@@ -289,7 +290,7 @@ private struct SocialLoginButton: View {
             .frame(maxWidth: .infinity)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                    .stroke(Color("colorPrimary"), lineWidth: 1)
             )
         }
     }

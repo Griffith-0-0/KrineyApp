@@ -92,4 +92,11 @@ final class CarViewModel: ObservableObject {
             return nil
         }
     }
+    
+    /// Toggle favorite status for a car by id
+    func toggleFavorite(carId: String, isFavorite: Bool) {
+        if let index = cars.firstIndex(where: { $0.id == carId }) {
+            cars[index].isFavorite = isFavorite
+        }
+    }
 }

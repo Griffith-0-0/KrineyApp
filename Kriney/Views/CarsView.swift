@@ -88,16 +88,24 @@ struct CarsView: View {
                         brands: ["ALL"] + brandViewModel.brands.map { $0.brandName }
                     )
                     
-                    // Recommend For You Section
-                    RecommendedCarsSection()
-                        .environmentObject(carViewModel)
-                    
-                    // Our Popular Cars Section
-                    PopularCarsSection()
-                        .environmentObject(carViewModel)
+                    // White container with rounded top corners
+                    VStack(spacing: 20) {
+                        // Recommend For You Section
+                        RecommendedCarsSection()
+                            .environmentObject(carViewModel)
+                        
+                        // Our Popular Cars Section
+                        PopularCarsSection()
+                            .environmentObject(carViewModel)
+                    }
+                    .padding(.top, 20)
+                    .background(Color.white)
+                    .cornerRadius(30, corners: [.topLeft, .topRight])
+                    .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: -5)
                 }
                 .padding(.bottom, 20)
             }
+            .background(Color("background"))
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 Task {
@@ -122,7 +130,7 @@ struct SearchBarSection: View {
                     .font(.system(size: 15))
             }
             .padding()
-            .background(Color.gray.opacity(0.1))
+            .background(Color.white)
             .cornerRadius(12)
             
             Button(action: {}) {
@@ -130,8 +138,12 @@ struct SearchBarSection: View {
                     .font(.system(size: 20))
                     .foregroundColor(Color("textPrimary"))
                     .padding(12)
-                    .background(Color.gray.opacity(0.1))
+                    .background(Color.white)
                     .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color("Stoke"), lineWidth: 1)
+                    )
             }
         }
         .padding(.horizontal)
@@ -257,18 +269,24 @@ struct RecommendedCarsSection: View {
             } else {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 16) {
-                        ForEach(carViewModel.cars.prefix(4)) { car in
+                        ForEach(carViewModel.cars.prefix(5)) { car in
                             CarCard(
+                                car: car,
                                 carName: "\(car.brand) \(car.model)",
                                 rating: 5.0,
                                 location: "Available",
                                 price: "$\(String(format: "%.0f", car.pricePerDay))/Day",
                                 imageName: car.imageURL ?? "car-placeholder",
-                                fuelType: car.fuelType.rawValue.capitalized
+                                fuelType: car.fuelType.rawValue.capitalized,
+                                onFavoriteToggle: { carId, isFavorite in
+                                    carViewModel.toggleFavorite(carId: carId, isFavorite: isFavorite)
+                                }
                             )
                         }
                     }
                     .padding(.horizontal)
+                    .padding(.vertical, 10)
+
                 }
             }
         }
@@ -314,6 +332,7 @@ struct PopularCarsSection: View {
                         }
                     }
                     .padding(.horizontal)
+                    .padding(.vertical, 10)
                 }
             }
         }
@@ -322,12 +341,14 @@ struct PopularCarsSection: View {
 
 // MARK: - Car Card Component
 struct CarCard: View {
+    let car: Car
     let carName: String
     let rating: Double
     let location: String
     let price: String
     let imageName: String
     let fuelType: String
+    let onFavoriteToggle: (String, Bool) -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -335,7 +356,8 @@ struct CarCard: View {
                 // Car Image Placeholder
                 RoundedRectangle(cornerRadius: 16)
                     .fill(Color.gray.opacity(0.1))
-                    .frame(width: 250, height: 150)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 150)
                     .overlay(
                         Image(systemName: "car.fill")
                             .font(.system(size: 50))
@@ -343,16 +365,21 @@ struct CarCard: View {
                     )
                 
                 // Favorite Button
-                Button(action: {}) {
-                    Image(systemName: "heart")
+                Button(action: {
+                    onFavoriteToggle(car.id, !car.isFavorite)
+                }) {
+                    Image(systemName: car.isFavorite ? "heart.fill" : "heart")
                         .font(.system(size: 20))
-                        .foregroundColor(.gray)
+                        .foregroundColor(car.isFavorite ? .red : .gray)
                         .padding(8)
                         .background(Color.white)
                         .clipShape(Circle())
                 }
                 .padding(12)
             }
+            .padding(.horizontal, 4)
+            .padding(.top, 4)
+            
             
             VStack(alignment: .leading, spacing: 6) {
                 Text(carName)
@@ -406,12 +433,17 @@ struct CarCard: View {
                     }
                 }
             }
+            .padding([.horizontal, .bottom], 12)
         }
         .frame(width: 250)
-        .padding()
         .background(Color.white)
         .cornerRadius(16)
-        .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.white, lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.08), radius: 5, x: 0, y: 4)
+        
     }
 }
 
@@ -424,16 +456,18 @@ struct PopularCarCard: View {
     let fuelType: String
     
     var body: some View {
-        HStack(spacing: 16) {
+        HStack{
             // Car Image Placeholder
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color.gray.opacity(0.1))
-                .frame(width: 120, height: 100)
+                .frame(/*width: 230,*/ height: 120)
                 .overlay(
                     Image(systemName: "car.fill")
                         .font(.system(size: 40))
                         .foregroundColor(.gray.opacity(0.3))
                 )
+//                .padding(.vertical, 4)
+//                .padding(.leading, 4)
             
             VStack(alignment: .leading, spacing: 6) {
                 Text(carName)
@@ -462,14 +496,33 @@ struct PopularCarCard: View {
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(Color("textPrimary"))
             }
+//            .padding(.vertical, 12)
+//            .padding(.horizontal, 8)
             
             Spacer()
         }
-        .frame(width: 350)
-        .padding()
+        .frame(width: 320, )
+        .padding(4)
         .background(Color.white)
         .cornerRadius(16)
-        .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 4)
+        .shadow(color: .black.opacity(0.08), radius: 5, x: 0, y: 4)
+    }
+}
+
+// MARK: - View Extension for Custom Corner Radius
+extension View {
+    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
+        clipShape(RoundedCorner(radius: radius, corners: corners))
+    }
+}
+
+struct RoundedCorner: Shape {
+    var radius: CGFloat = .infinity
+    var corners: UIRectCorner = .allCorners
+
+    func path(in rect: CGRect) -> Path {
+        let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
+        return Path(path.cgPath)
     }
 }
 
